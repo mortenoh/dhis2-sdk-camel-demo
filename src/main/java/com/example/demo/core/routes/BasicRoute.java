@@ -25,43 +25,20 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.example.demo.web;
+package com.example.demo.core.routes;
 
-import lombok.Builder;
-import lombok.Data;
+import org.apache.camel.builder.RouteBuilder;
+import org.springframework.stereotype.Component;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-@RestController
-@RequestMapping( "/api/status" )
-public class StatusController
+@Component
+public class BasicRoute extends RouteBuilder
 {
-    @GetMapping
-    public ResponseEntity<Message> getStatus()
+    @Override
+    public void configure()
+        throws Exception
     {
-        Message message = Message.builder()
-            .status( Status.OK )
-            .message( "All ok" )
-            .build();
-
-        return ResponseEntity.ok( message );
+        from( "timer:foo?repeatCount=4" )
+            .routeId( "BasicRoute" )
+            .log( "Hello World" );
     }
-}
-
-@Data
-@Builder
-class Message
-{
-    private Status status;
-
-    private String message;
-}
-
-enum Status
-{
-    OK,
-    ERROR
 }
