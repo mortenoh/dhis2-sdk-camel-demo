@@ -27,8 +27,11 @@
  */
 package com.example.demo;
 
+import org.hisp.dhis.integration.sdk.Dhis2ClientBuilder;
+import org.hisp.dhis.integration.sdk.api.Dhis2Client;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
 public class Application
@@ -36,5 +39,13 @@ public class Application
     public static void main( String[] args )
     {
         SpringApplication.run( Application.class, args );
+    }
+
+    @Bean
+    public Dhis2Client dhis2Client()
+    {
+        return Dhis2ClientBuilder
+            .newClient( "https://play.dhis2.org/dev/api", "admin", "district" )
+            .build();
     }
 }

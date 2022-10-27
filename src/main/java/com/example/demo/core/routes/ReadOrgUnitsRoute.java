@@ -27,18 +27,26 @@
  */
 package com.example.demo.core.routes;
 
+import java.util.Map;
+
 import org.apache.camel.builder.RouteBuilder;
 import org.springframework.stereotype.Component;
 
 @Component
-public class BasicRoute extends RouteBuilder
+public class ReadOrgUnitsRoute extends RouteBuilder
 {
     @Override
     public void configure()
         throws Exception
     {
-        from( "timer:foo?repeatCount=4" )
-            .routeId( "BasicRoute" )
-            .log( "Hello World" );
+        from( "timer:foo?repeatCount=1" )
+            .routeId( "Read OrgUnits" )
+            .setHeader( "CamelDhis2.queryParams", () -> Map.of(
+                "order", "level",
+                "paging", "false",
+                "fields", "id,code,name,description,parent" ) )
+            .to( "dhis2://get/collection?path=organisationUnits&fields=id,code,name,description,parent&itemType=org.hisp.dhis.api.model.v2_38_1.OrganisationUnit&client=#dhis2Client" )
+            .split().body()
+            .log( "${body.getId().get()} = ${body.getName().get()}" );
     }
 }
