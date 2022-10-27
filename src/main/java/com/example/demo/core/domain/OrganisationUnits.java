@@ -25,41 +25,17 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.example.demo.core.routes;
+package com.example.demo.core.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Data;
+
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import com.example.demo.core.domain.OrganisationUnit;
-import com.example.demo.core.domain.OrganisationUnits;
-import org.apache.camel.builder.RouteBuilder;
-import org.springframework.stereotype.Component;
-
-@Component
-public class ReadOrgUnitsRoute extends RouteBuilder
+@Data
+@JsonIgnoreProperties( ignoreUnknown = true )
+public class OrganisationUnits
 {
-    @Override
-    public void configure()
-        throws Exception
-    {
-        from( "timer:foo?repeatCount=1" )
-            .routeId( "Read OrgUnits" )
-            .setHeader( "CamelDhis2.queryParams", () -> Map.of(
-                "order", "level",
-                "paging", "false",
-                "fields", "id,code,name,description,parent" ) )
-            .to( "dhis2://get/resource?path=organisationUnits&client=#dhis2Client" )
-            .unmarshal().json( OrganisationUnits.class )
-            .split().method( new SplitterBean(), "splitOrgUnits" )
-            .marshal().json()
-            .to( "jms:topic:orgUnits" );
-    }
-}
-
-class SplitterBean
-{
-    public List<OrganisationUnit> splitOrgUnits( OrganisationUnits organisationUnits )
-    {
-        return organisationUnits.getOrganisationUnits();
-    }
+    private List<OrganisationUnit> organisationUnits = new ArrayList<>();
 }
