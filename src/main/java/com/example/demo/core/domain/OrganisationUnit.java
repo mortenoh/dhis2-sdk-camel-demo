@@ -41,7 +41,11 @@ public class OrganisationUnit
 
     private String name;
 
+    private String shortName;
+
     private String description;
+
+    private String openingDate;
 
     private OrganisationUnit parent;
 }

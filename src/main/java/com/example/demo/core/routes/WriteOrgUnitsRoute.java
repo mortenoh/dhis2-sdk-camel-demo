@@ -27,6 +27,11 @@
  */
 package com.example.demo.core.routes;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import lombok.Data;
+
 import org.apache.camel.builder.RouteBuilder;
 import org.hisp.dhis.api.model.v2_38_1.OrganisationUnit;
 import org.springframework.stereotype.Component;
@@ -41,6 +46,18 @@ public class WriteOrgUnitsRoute extends RouteBuilder
         from( "jms:topic:orgUnits" )
             .routeId( "Write OrgUnits" )
             .unmarshal().json( OrganisationUnit.class )
-            .to( "dhis2://post/resource?path=organisationUnits&inBody=resource&client=#dhis2ClientTarget" );
+            .process( x -> {
+                OrganisationUnit organisationUnit = x.getIn().getBody( OrganisationUnit.class );
+                OrganisationUnitWrapper wrapper = new OrganisationUnitWrapper();
+                wrapper.getOrganisationUnits().add( organisationUnit );
+                x.getIn().setBody( wrapper );
+            } )
+            .to( "dhis2://post/resource?path=metadata&inBody=resource&client=#dhis2ClientTarget" );
     }
+}
+
+@Data
+class OrganisationUnitWrapper
+{
+    private List<OrganisationUnit> organisationUnits = new ArrayList<>();
 }
