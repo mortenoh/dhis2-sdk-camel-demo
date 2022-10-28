@@ -27,13 +27,11 @@
  */
 package com.example.demo.core.routes;
 
-import java.util.List;
 import java.util.Map;
 
 import org.apache.camel.builder.RouteBuilder;
 import org.springframework.stereotype.Component;
 
-import com.example.demo.core.domain.OrganisationUnit;
 import com.example.demo.core.domain.OrganisationUnits;
 
 @Component
@@ -43,7 +41,7 @@ public class ReadOrgUnitsRoute extends RouteBuilder
     public void configure()
         throws Exception
     {
-        from( "timer:foo?fixedRate=true&period=5000" )
+        from( "timer:foo?fixedRate=true&period=10000" )
             .routeId( "Read OrgUnits" )
             .setHeader( "CamelDhis2.queryParams", () -> Map.of(
                 "order", "level",
@@ -51,16 +49,8 @@ public class ReadOrgUnitsRoute extends RouteBuilder
                 "fields", "id,code,name,shortName,description,openingDate,parent" ) )
             .to( "dhis2://get/resource?path=organisationUnits&client=#dhis2ClientSource" )
             .unmarshal().json( OrganisationUnits.class )
-            .split().method( new SplitterBean(), "splitOrgUnits" )
+            .split( simple( "${body.organisationUnits}" ) )
             .marshal().json()
             .to( "jms:topic:orgUnits" );
-    }
-}
-
-class SplitterBean
-{
-    public List<OrganisationUnit> splitOrgUnits( OrganisationUnits organisationUnits )
-    {
-        return organisationUnits.getOrganisationUnits();
     }
 }
