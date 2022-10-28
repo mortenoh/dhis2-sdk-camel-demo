@@ -25,18 +25,22 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.example.demo.core.domain;
+package com.example.demo.core.routes;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.apache.camel.builder.RouteBuilder;
+import org.hisp.dhis.api.model.v2_38_1.OrganisationUnit;
+import org.springframework.stereotype.Component;
 
-import lombok.Data;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-@Data
-@JsonIgnoreProperties( ignoreUnknown = true )
-public class OrganisationUnits
+@Component
+public class WriteOrgUnitsRoute extends RouteBuilder
 {
-    private List<OrganisationUnit> organisationUnits = new ArrayList<>();
+    @Override
+    public void configure()
+        throws Exception
+    {
+        from( "jms:topic:orgUnits" )
+            .routeId( "Write OrgUnits" )
+            .unmarshal().json( OrganisationUnit.class )
+            .to( "dhis2://post/resource?path=organisationUnits&inBody=resource&client=#dhis2ClientTarget" );
+    }
 }

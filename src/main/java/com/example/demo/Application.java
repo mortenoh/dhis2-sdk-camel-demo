@@ -42,10 +42,18 @@ public class Application
     }
 
     @Bean
-    public Dhis2Client dhis2Client()
+    public Dhis2Client dhis2ClientSource()
     {
         return Dhis2ClientBuilder
-            .newClient( "https://play.dhis2.org/dev/api", "admin", "district" )
+            .newClient( "http://localhost:8080/api", "admin", "district" )
+            .build();
+    }
+
+    @Bean
+    public Dhis2Client dhis2ClientTarget()
+    {
+        return Dhis2ClientBuilder
+            .newClient( "http://localhost:9090/api", "admin", "district" )
             .build();
     }
 }
